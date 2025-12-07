@@ -1,20 +1,21 @@
 # 🧭 AHK Command Launcher
 
-A fast, dark-mode, Spotlight-style command launcher for Windows built with **AutoHotkey v2**.
-Instant fuzzy search, nested groups, action shortcuts, Fabric AI prompt enhancement, and a fully modular architecture.
+A fast, dark-mode, Spotlight-style command launcher for Windows built with **AutoHotkey v2**.  
+Instant fuzzy search, nested groups, action shortcuts, Fabric AI prompt enhancement, **prompt templates**, and a fully modular architecture.
 
 <br>
 
 ## ✨ Features
 
 * ⚡ **Instant fuzzy search** (space-insensitive)
-* 🗂 **Nested command groups** (GitHub, Links, custom groups)
+* 🗂 **Nested command groups** (GitHub, Links, Azure, SQL helpers, custom groups)
 * 🌓 **Dark mode UI**
 * ↕ **Keyboard-first workflow** (Tab, Enter, Esc, Shift+Tab)
 * 🔍 **Enter-to-run even without list focus**
 * 🔙 **Search state restoration when navigating back**
 * 🧩 **Modular file structure** (GUI, commands, logic)
-* 🤖 **Fabric AI integration** via your repo
+* 📁 **Prompt templates** from files with parameter placeholders
+* 🤖 **Fabric AI integration** via your repo  
   → **[Fabric-Prompt-Enhancer](https://github.com/mmcdermott-ashleyne/Fabric-Prompt-Enhancer)**
 * 📋 Autocopies AI-enhanced output to clipboard
 * 🛠 Easy command customization (open apps, URLs, folders, scripts)
@@ -24,7 +25,6 @@ Instant fuzzy search, nested groups, action shortcuts, Fabric AI prompt enhancem
 ## 📸 Screenshot
 
 !['launcher'](launcher-preview.png)
-
 
 <br>
 
@@ -49,6 +49,8 @@ AutoHotKey-Command-Launcher/
     commands.ahk
     gui.ahk
     logic.ahk
+  prompts/
+    repository_instruct.txt
 ```
 
 ### 4. Run the launcher
@@ -96,6 +98,82 @@ Pressing **Esc** restores your previous search automatically.
 ### 🔹 Quick Execution
 
 No need to tab into the list — **Enter** always defaults to the top result when nothing is selected.
+
+<br>
+
+## 🧾 Prompt Templates
+
+The launcher can generate prompts from template files stored on disk.
+
+```
+prompt_template
+```
+
+**Template Folder**
+By default, templates live in:
+
+```
+PromptTemplateDir := A_ScriptDir "\prompts"
+```
+
+**Template Format**
+
+Any plain-text file works (.txt, .md, etc).
+You can optionally include parameters using {NAME} placeholders, for example:
+```
+You are helping with a project called {PROJECT_NAME}.
+
+Goal:
+{GOAL}
+
+Constraints:
+{CONSTRAINTS}
+```
+
+How it works
+
+1. Run prompt_template in the launcher.
+
+2. A file picker opens in your prompts directory.
+
+3. Choose a template file.
+
+4. The launcher scans the file for {PARAM} placeholders.
+
+5. For each unique param, you get an input box:
+
+    - Example: Enter a value for {PROJECT_NAME}
+
+6. After filling them in:
+
+    - All {PARAM} placeholders are replaced with your values.
+
+    - The final, filled template is copied to your clipboard.
+
+7. A tray notification confirms the prompt was copied.
+
+If the template has no placeholders, the raw file contents are copied directly to the clipboard.
+
+### repository_instruct.txt
+
+This template is designed for use with the Visual Studio Code extension [Copy4AI](https://marketplace.visualstudio.com/items?itemName=LeonKohli.snapsource). It provides a controlled workflow for gathering project context before sending instructions to GPT.
+
+Usage Workflow (Strict Order):
+1. Select `repository_instruct.txt` and fill in your instructions when prompted.
+
+2. Paste the entire filled-in template into your GPT window.
+This establishes the instruction framework before attaching any source material.
+
+3. Use Copy4AI to extract project content.
+In VS Code, select the target folder and/or files that GPT should analyze.
+Run the Copy4AI command (right click) to generate the structured snapshot.
+
+4. Append the generated snapshot to the end of the GPT prompt.
+Do not modify the snapshot content.
+Ensure the appended material appears after all instructions.
+
+5. Submit the full prompt to GPT.
+Allow GPT to process both the instructions and the appended repository snapshot.
 
 <br>
 

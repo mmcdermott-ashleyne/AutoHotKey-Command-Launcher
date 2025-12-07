@@ -1,0 +1,56 @@
+
+You will be given a full project snapshot directly inside this chat message. 
+It will always include:
+
+1. A "Project Structure" section showing the directory tree.
+2. A "File Contents" section containing one or more files in this format:
+
+   ## path\to\file.ext
+```<language>
+   <file content>
+````
+
+IMPORTANT RULES:
+
+* Treat these pasted files as the ONLY source of truth.
+* Do NOT assume anything exists outside the files I paste.
+* Do NOT attempt to access a real filesystem or infer missing content.
+* ONLY analyze and operate on the provided files.
+
+---
+
+### What You Must Always Do
+
+---
+
+1. Parse and understand the Project Structure.
+2. Parse and index every file from the File Contents section.
+3. Restrict all reasoning, searching, editing, and conclusions to ONLY these files.
+4. When I give instructions, apply them EXCLUSIVELY to the files included in the message.
+
+---
+
+### Your Task
+
+---
+
+{Instructions}
+
+---
+
+### Output Requirements
+
+---
+
+* Provide the result EXACTLY in the format the task requires.
+* If you must output updated file(s), show each one in a fenced code block with its file path as a heading.
+* Do NOT output anything unrelated to the task.
+* Do NOT hallucinate new files or content — operate only on what I provide.
+
+I will now paste the Project Structure and File Contents.
+
+---
+
+### Pasted Project Structure and File Contents
+
+---

@@ -2,7 +2,7 @@
 
 ; ---------- Globals    ----------
 global SearchStack := []   ; remembers parent searches when navigating into groups
-
+global PromptTemplateDir := A_ScriptDir "\prompts"
 
 StrJoin(delim, arr*) {
     out := ""
@@ -429,4 +429,91 @@ FabricImprove(promptText) {
     }
 
     return out
+}
+
+SelectPromptTemplate(baseDir) {
+    ; Ensure the directory exists; if not, fall back to the script directory
+    if !DirExist(baseDir)
+        baseDir := A_ScriptDir "\prompts"
+
+    ; Let the user pick a template file starting in baseDir.
+    ; Mode 3 = existing files only.
+    tplFile := FileSelect(
+        "3"  ; 3 = existing files, single-select
+      , baseDir
+      , "Select a prompt template"
+      , "Prompt templates (*.txt;*.md;*.prompt)"
+    )
+
+    ; If the user cancels, FileSelect() returns an empty string.
+    return tplFile
+}
+
+PromptFromTemplateAction(*) {
+    global GL, PromptTemplateDir
+
+    ; Hide launcher so selection dialogs are not behind it
+    if (IsSet(GL) && GL.gui)
+        HideLauncher()
+
+    ; Let user choose a template file from PromptTemplateDir
+    tplPath := SelectPromptTemplate(PromptTemplateDir)
+    if (tplPath = "")
+        return  ; user cancelled
+
+    if !FileExist(tplPath) {
+        MsgBox("Template file not found:`n" tplPath, "Prompt Template", "Icon!")
+        return
+    }
+
+    tplText := FileRead(tplPath, "UTF-8")
+
+    params := CollectTemplateParams(tplText)
+    if (params.Length = 0) {
+        ; No parameters → just copy as-is
+        A_Clipboard := tplText
+        TrayTip("Prompt copied", "Template copied to clipboard (no parameters).", "Iconi")
+        return
+    }
+
+    ; Ask for each parameter value
+    values := Map()
+    for pname in params {
+        ib := InputBox(
+            "Enter a value for {" pname "}",
+            "Prompt Parameter",
+            "w420"
+        )
+        if (ib.Result = "Cancel")
+            return  ; abort the entire operation
+
+        values[pname] := ib.Value
+    }
+
+    final := ReplaceTemplateParams(tplText, values)
+    A_Clipboard := final
+    TrayTip("Prompt copied", "Filled prompt copied to clipboard.", "Iconi")
+}
+
+CollectTemplateParams(tplText) {
+    params := Map()
+    list := []
+
+    pos := 1
+    while (pos := RegExMatch(tplText, "\{([A-Za-z0-9_]+)\}", &m, pos)) {
+        name := m[1]
+        if !params.Has(name) {
+            params[name] := true
+            list.Push(name)
+        }
+        pos := pos + m.Len
+    }
+    return list
+}
+
+ReplaceTemplateParams(tplText, values) {
+    for name, val in values {
+        tplText := StrReplace(tplText, "{" name "}", val)
+    }
+    return tplText
 }

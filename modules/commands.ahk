@@ -43,6 +43,9 @@ BuildRegistry() {
         { key: "lock",    label: "Lock Workstation", action: (*) => DllCall("LockWorkStation"), aliases: ["lock"] },
         { key: "ip",      label: "IP Config (CMD)", action: (*) => Run(EnvGet("ComSpec") . " /k ipconfig"), aliases: ["ipconfig","network"] },
         { key: "reload",  label: "Reload Launcher", action: (*) => Reload(), aliases: ["rel"] },
+        { key: "prompt_template", label: "Prompt from Template"
+            , action: PromptFromTemplateAction
+            , aliases: ["ptemplate", "prompt from file", "tplprompt"] },
 		{ key: "improve_prompt", label: "Improve Prompt (Fabric)", action: ImprovePromptAction, aliases: ["iprompt", "fabric improve", "prompt improve"] },
 	)
 
