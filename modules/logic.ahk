@@ -517,3 +517,57 @@ ReplaceTemplateParams(tplText, values) {
     }
     return tplText
 }
+
+
+ImprovePromptAction(*) {
+	HideLauncher()
+    ; Ask the user for a multi-line prompt
+    txt := PromptMultiline("Improve Prompt", "Prompt:")
+    if (txt = "")  ; cancelled or empty
+        return
+
+    ; Run: echo {prompt} | fabric --pattern improve_prompt
+    try {
+		TrayTip("Processing Prompt", "Iconi")
+        result := FabricImprove(txt)  ; returns stdout (throws on nonzero)
+    } catch as e {
+        MsgBox("Fabric error:`n`n" . e.Message, "Fabric", "Icon! Owner")
+        return
+    }
+
+    A_Clipboard := result
+    TrayTip("Copied to clipboard", "Fabric improve_prompt complete.", "Iconi")
+}
+
+; Calculates approximate LLM tokens in the clipboard
+; Assumes 1 token ≈ 4 characters
+TokenCountFromClipboard() {
+    ; Hide launcher if present
+    if (IsSet(GL) && GL.gui)
+        HideLauncher()
+
+    clipText := A_Clipboard
+    if (clipText = "")
+    {
+        MsgBox "Clipboard is empty.`nTokens: 0"
+        return 0
+    }
+
+    charCount := StrLen(clipText)
+    tokenCount := Ceil(charCount / 4)
+
+    ; Apply comma formatting
+    charFmt  := AddCommas(charCount)
+    tokenFmt := AddCommas(tokenCount)
+
+    MsgBox "Characters: " charFmt "`nEstimated tokens: " tokenFmt
+    return tokenCount
+}
+
+; -------- Comma-format helper --------
+AddCommas(n) {
+    s := n . ""   ; convert to string
+    while RegExMatch(s, "^\d+(\d{3})", &m)
+        s := RegExReplace(s, "(\d+)(\d{3})", "$1,$2")
+    return s
+}

@@ -43,33 +43,12 @@ BuildRegistry() {
         { key: "lock",    label: "Lock Workstation", action: (*) => DllCall("LockWorkStation"), aliases: ["lock"] },
         { key: "ip",      label: "IP Config (CMD)", action: (*) => Run(EnvGet("ComSpec") . " /k ipconfig"), aliases: ["ipconfig","network"] },
         { key: "reload",  label: "Reload Launcher", action: (*) => Reload(), aliases: ["rel"] },
-        { key: "prompt_template", label: "Prompt from Template"
-            , action: PromptFromTemplateAction
-            , aliases: ["ptemplate", "prompt from file", "tplprompt"] },
+        { key: "prompt_template", label: "Prompt from Template", action: PromptFromTemplateAction, aliases: ["ptemplate", "prompt from file", "tplprompt"] },
 		{ key: "improve_prompt", label: "Improve Prompt (Fabric)", action: ImprovePromptAction, aliases: ["iprompt", "fabric improve", "prompt improve"] },
+        { key: "count_tokens", label: "Estimate Tokens on Clipboard", action: TokenCountFromClipboard, aliases: ["token"] },
 	)
 
     return reg
-}
-
-ImprovePromptAction(*) {
-	HideLauncher()
-    ; Ask the user for a multi-line prompt
-    txt := PromptMultiline("Improve Prompt", "Prompt:")
-    if (txt = "")  ; cancelled or empty
-        return
-
-    ; Run: echo {prompt} | fabric --pattern improve_prompt
-    try {
-		TrayTip("Processing Prompt", "Iconi")
-        result := FabricImprove(txt)  ; returns stdout (throws on nonzero)
-    } catch as e {
-        MsgBox("Fabric error:`n`n" . e.Message, "Fabric", "Icon! Owner")
-        return
-    }
-
-    A_Clipboard := result
-    TrayTip("Copied to clipboard", "Fabric improve_prompt complete.", "Iconi")
 }
 
 ; =============
